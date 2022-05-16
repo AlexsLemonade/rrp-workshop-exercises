@@ -2,7 +2,7 @@
 
 - `raw` contains raw files as they came from experiment results or an external source.
 These files should generally not be modified once created.
-Examples of such data are sequencing data from a core facility, expression data downloaded from a repository,
+Examples of such data are lab instrument output files, sequencing data from a core facility, or expression data downloaded from a repository.
 
 - `processed` may contain modified versions of the `raw` files, after steps like filtering, sorting, trimming, etc.
 
