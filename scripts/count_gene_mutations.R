@@ -2,24 +2,35 @@
 
 # Count the number of samples mutated for each gene in a MAF file.
 
-# Option descriptions
+# This script reads in a MAF file and writes out a table of the genes with
+# mutations. The table includes the number of samples that have at least one 
+# mutation in the gene, as well as the total number of mutations detected across
+# all samples.
+
+# Option descriptions:
 #
 # --maf :  File path to MAF file to be analyzed. Can be .gz compressed.
 # --outfile : The name of the output file to create
 # --vaf: Minimum variant allele fraction of mutations to include.
 # --min_depth: Minimum sequencing depth to call mutations.
+# --include_syn: Flag to include synonymous mutations in counts.
 
+# Example invocation:
+#
+# Rscript count_gene_mutations.R \
+#   --maf mutations.maf.tsv.gz \
+#   --outfile gene_counts.tsv
 
 # Load libraries
 library(optparse)
 library(magrittr)
-library(dplyr)
 
 # Set up options
 option_list <- list(
   make_option(
     opt_str = c("--maf", "-m"),
     type = "character",
+    default = NA,
     help = "File path of MAF file to be analyzed. Can be .gz compressed."
   ),
   make_option(
@@ -27,12 +38,6 @@ option_list <- list(
     type = "character",
     default = "gene_counts.tsv",
     help = "File path where output table will be placed."
-  ),
-  make_option(
-    opt_str = "--include_syn",
-    action = "store_true",
-    default = FALSE,
-    help = "Include synonymous coding mutations"
   ),
   make_option(
     opt_str = c("--vaf", "-v"),
@@ -45,8 +50,14 @@ option_list <- list(
     opt_str = c("--min_depth", "-d"),
     type = "numeric",
     default = 0,
-    help = "Minimum sequencing depth to include (default 0))",
+    help = "Minimum sequencing depth to include (default 0)",
     metavar = "numeric"
+  ),
+  make_option(
+    opt_str = "--include_syn",
+    action = "store_true",
+    default = FALSE,
+    help = "Include synonymous coding mutations"
   )
 )
 # Parse options

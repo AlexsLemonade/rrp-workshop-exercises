@@ -1,12 +1,17 @@
 #!/usr/bin/env Rscript
 
 # Split a maf file by disease types
+# Default settings reads sample and MAF files from OpenPBTA and creates
+# MAF files for the 5 most common histologies
 
 # Load libraries
-library(optparse)
-library(magrittr)
-library(dplyr)
+suppressPackageStartupMessages({
+  library(optparse)
+  library(magrittr)
+  library(dplyr)
+})
 
+### Define functions
 
 #' Filter a maf table to a single histology
 #'
@@ -34,6 +39,7 @@ filter_write_maf <- function(histology, sample_df, maf_df, outdir, suffix = ".ma
     readr::write_tsv(maf_path)
 }
 
+# end Functions
 
 
 # Set up options
