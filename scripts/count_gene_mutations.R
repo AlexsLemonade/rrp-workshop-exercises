@@ -10,7 +10,7 @@
 # Option descriptions:
 #
 # --maf :  File path to MAF file to be analyzed. Can be .gz compressed.
-# --outfile : The name of the output file to create
+# --outfile : The path of the output file to create
 # --vaf: Minimum variant allele fraction of mutations to include.
 # --min_depth: Minimum sequencing depth to call mutations.
 # --include_syn: Flag to include synonymous mutations in counts.
@@ -78,7 +78,7 @@ maf_df <- readr::read_tsv(opts$maf)
 # Get the excluded genes list if provided
 if(!is.null(opts$exclude_genes)){
   exclude_genes <- readr::read_tsv(opts$exclude_file) %>%
-    pull("gene")
+    dplyr::pull("gene")
 } else {
   exclude_genes <- c()
 }
