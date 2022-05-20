@@ -53,7 +53,7 @@ option_list <- list(
   make_option(
     opt_str = c("--outdir", "-o"),
     type = "character",
-    default = "maf_files",
+    default = here::here("data/processed/maf_files"),
     help = "File path where output table will be placed."
   ),
   make_option(
