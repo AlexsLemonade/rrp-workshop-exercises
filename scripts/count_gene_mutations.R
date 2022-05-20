@@ -29,12 +29,6 @@ option_list <- list(
     help = "File path where output table will be placed."
   ),
   make_option(
-    opt_str = c("--exclude_genes", "-x"),
-    type = "character",
-    help = "File path with a table of genes to be excluded from the figure.
-            A tsv file which must contain a column named `gene` that contains Hugo Symbols"
-  ),
-  make_option(
     opt_str = "--include_syn",
     action = "store_true",
     default = FALSE,
@@ -45,6 +39,13 @@ option_list <- list(
     type = "numeric",
     default = 0.05,
     help = "Minimum variant allele fraction to include (default 0.05)",
+    metavar = "numeric"
+  ),
+  make_option(
+    opt_str = c("--min_depth", "-d"),
+    type = "numeric",
+    default = 0,
+    help = "Minimum sequencing depth to include (default 0))",
     metavar = "numeric"
   )
 )
@@ -116,9 +117,10 @@ muts_df <- maf_df %>%
   ) %>%
   # calculate VAF
   dplyr::mutate(vaf = t_alt_count / (t_ref_count + t_alt_count)) %>%
-  # filter by VAF & Classification
+  # filter by VAF, min depth & Classification
   dplyr::filter(
-    vaf >= 0.05,
+    vaf >= opts$vaf,
+    t_ref_count + t_alt_count < opts$min_depth,
     Variant_Classification %in% include_class
   )
 
