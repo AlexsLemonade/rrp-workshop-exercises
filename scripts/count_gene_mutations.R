@@ -63,11 +63,12 @@ option_list <- list(
 # Parse options
 opts <- parse_args(OptionParser(option_list = option_list))
 
-# Check input files
+# Check that the specified input files are present; exit with error if not
 if(!file.exists(opts$maf)){
   stop("The specified MAF file does not exist.")
 }
 
+# only need to check th excluded file if it was defined
 if(!is.null(opts$exclude_genes) && file.exists(opts$exclude_genes)){
   stop("The specified 'excludes_genes' file does not exist.")
 }
@@ -105,15 +106,13 @@ nonsyn_class <- c(
   "Translation_Start_Site"
 )
 
-# select mutations to keep
+# Select mutations to keep
 include_class <- nonsyn_class
 if(opts$include_syn){
   include_class <- c(include_class, syn_class)
 }
 
-
-
-# Process the maf table
+# Process the MAF table
 muts_df <- maf_df %>%
   # select only the fields we need
   dplyr::select(
@@ -126,27 +125,27 @@ muts_df <- maf_df %>%
     t_ref_count,
     t_alt_count
   ) %>%
-  # calculate VAF
+  # Calculate VAF
   dplyr::mutate(vaf = t_alt_count / (t_ref_count + t_alt_count)) %>%
-  # filter by VAF, min depth & Classification
+  # Filter by VAF, min depth & Classification
   dplyr::filter(
     vaf >= opts$vaf,
     t_ref_count + t_alt_count >= opts$min_depth,
     Variant_Classification %in% include_class
   )
 
-# count mutations by sample and gene
+# Count mutations by sample and gene
 sample_gene_counts <- muts_df %>%
   dplyr::count(Tumor_Sample_Barcode, Hugo_Symbol, name = "mut_count")
 
-# count mutations by gene
+# Count mutations by gene
 gene_counts <- sample_gene_counts %>%
   dplyr::group_by(Hugo_Symbol) %>%
   dplyr::summarise(
     mutated_samples = dplyr::n(),
     total_muts = sum(mut_count)
   ) %>%
-  # sort genes by sample count, then total (descending)
+  # Sort genes by sample count, then total (descending)
   dplyr::arrange(desc(mutated_samples), desc(total_muts))
 
   
