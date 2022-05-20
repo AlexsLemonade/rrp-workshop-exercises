@@ -131,7 +131,7 @@ muts_df <- maf_df %>%
   # filter by VAF, min depth & Classification
   dplyr::filter(
     vaf >= opts$vaf,
-    t_ref_count + t_alt_count < opts$min_depth,
+    t_ref_count + t_alt_count >= opts$min_depth,
     Variant_Classification %in% include_class
   )
 
@@ -143,7 +143,7 @@ sample_gene_counts <- muts_df %>%
 gene_counts <- sample_gene_counts %>%
   dplyr::group_by(Hugo_Symbol) %>%
   dplyr::summarise(
-    mutated_samples = n(),
+    mutated_samples = dplyr::n(),
     total_muts = sum(mut_count)
   ) %>%
   # sort genes by sample count, then total (descending)
