@@ -15,7 +15,7 @@ library(optparse)
 library(magrittr)
 library(dplyr)
 
-#### Set up options
+# Set up options
 option_list <- list(
   make_option(
     opt_str = c("--maf", "-m"),
@@ -104,9 +104,9 @@ if(opts$include_syn){
 
 # Process the maf table
 muts_df <- maf_df %>%
-  # select only the fields we need, with renaming
+  # select only the fields we need
   dplyr::select(
-    Sample = Tumor_Sample_Barcode,
+    Tumor_Sample_Barcode,
     Hugo_Symbol,
     Entrez_Gene_Id,
     Variant_Classification,
@@ -126,7 +126,7 @@ muts_df <- maf_df %>%
 
 # count mutations by sample and gene
 sample_gene_counts <- muts_df %>%
-  dplyr::count(Sample, Hugo_Symbol, name = "mut_count")
+  dplyr::count(Tumor_Sample_Barcode, Hugo_Symbol, name = "mut_count")
 
 # count mutations by gene
 gene_counts <- sample_gene_counts %>%
