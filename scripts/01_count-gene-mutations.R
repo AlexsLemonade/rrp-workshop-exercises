@@ -21,11 +21,11 @@
 #   --maf mutations.maf.tsv.gz \
 #   --outfile gene_counts.tsv
 
-# Load libraries
+# Load libraries -----------------------------------
 library(optparse)
 library(magrittr)
 
-# Set up options
+# Set up options -----------------------------------
 option_list <- list(
   make_option(
     opt_str = c("--maf", "-m"),
@@ -63,26 +63,20 @@ option_list <- list(
 # Parse options
 opts <- parse_args(OptionParser(option_list = option_list))
 
+
+# Input and option checks --------------------------------- 
+
 # Check that the specified input files are present; exit with error if not
 if(!file.exists(opts$maf)){
   stop("The specified MAF file does not exist.")
 }
 
-# only need to check th excluded file if it was defined
+# only need to check the excluded file if it was defined
 if(!is.null(opts$exclude_genes) && file.exists(opts$exclude_genes)){
   stop("The specified 'excludes_genes' file does not exist.")
 }
 
-# Read input MAF file
-maf_df <- readr::read_tsv(opts$maf)
-
-# Get the excluded genes list if provided
-if(!is.null(opts$exclude_genes)){
-  exclude_genes <- readr::read_tsv(opts$exclude_file) %>%
-    dplyr::pull("gene")
-} else {
-  exclude_genes <- c()
-}
+# Define constants --------------------------------------
 
 # Define the MAF `Consequence` values we are interested in and their classification
 #  based on definitions in http://asia.ensembl.org/Help/Glossary?id=535
@@ -105,6 +99,19 @@ nonsyn_class <- c(
   "Nonstop_Mutation",
   "Translation_Start_Site"
 )
+
+# Main processing code -----------------------------------
+
+# Read input MAF file
+maf_df <- readr::read_tsv(opts$maf)
+
+# Get the excluded genes list if provided
+if(!is.null(opts$exclude_genes)){
+  exclude_genes <- readr::read_tsv(opts$exclude_file) %>%
+    dplyr::pull("gene")
+} else {
+  exclude_genes <- c()
+}
 
 # Select mutations to keep
 include_class <- nonsyn_class
