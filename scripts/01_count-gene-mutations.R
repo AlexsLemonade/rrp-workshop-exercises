@@ -26,6 +26,11 @@ library(optparse)
 library(magrittr)
 
 # Set up options -----------------------------------
+
+# Create a list of options created with the `optparse` function `make_option()`
+# This allow us to specify option flags (short and long), default values,
+# the type of data we expect for the value, and help text.
+# The option name will be the same as the long option flag.
 option_list <- list(
   make_option(
     opt_str = c("--maf", "-m"),
@@ -53,6 +58,7 @@ option_list <- list(
     help = "Minimum sequencing depth to include (default 0)",
     metavar = "numeric"
   ),
+  # This option is boolean, so can be invoked with just the flag and no following value
   make_option(
     opt_str = "--include_syn",
     action = "store_true",
@@ -66,7 +72,8 @@ opts <- parse_args(OptionParser(option_list = option_list))
 
 # Input and option checks --------------------------------- 
 
-# Check that the specified input files are present; exit with error if not
+# Check that the specified input files are present; 
+# exit with error if not using `stop()`
 if(!file.exists(opts$maf)){
   stop("The specified MAF file does not exist.")
 }
@@ -79,7 +86,7 @@ if(!is.null(opts$exclude_genes) && file.exists(opts$exclude_genes)){
 # Define constants --------------------------------------
 
 # Define the MAF `Consequence` values we are interested in and their classification
-#  based on definitions in http://asia.ensembl.org/Help/Glossary?id=535
+# based on definitions in http://asia.ensembl.org/Help/Glossary?id=535
 syn_class <- c(
   "Silent",
   "Start_Codon_Ins",
@@ -113,7 +120,7 @@ if(!is.null(opts$exclude_genes)){
   exclude_genes <- c()
 }
 
-# Select mutations to keep
+# Select mutations to keep,  based on command line options
 include_class <- nonsyn_class
 if(opts$include_syn){
   include_class <- c(include_class, syn_class)
