@@ -120,7 +120,7 @@ if(!is.null(opts$exclude_genes)){
   exclude_genes <- c()
 }
 
-# Select mutations to keep,  based on command line options
+# Select mutations to keep based on command line option
 include_class <- nonsyn_class
 if(opts$include_syn){
   include_class <- c(include_class, syn_class)
