@@ -1,0 +1,265 @@
+---
+title: "Plotting Gene Mutation Counts"
+author: Childhood Cancer Data Lab, Alex's Lemonade Stand Foundation
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+## Introduction
+
+We at the Data Lab really like using notebook documents like [Rmarkdown](https://rmarkdown.rstudio.com) (this document) and [Jupyter](https://jupyter.org) for development and data exploration.
+Notebooks allow mixing of text, code, and results in a single document that is easy to work with interactively.
+This allows much more freedom to include a lot of explanatory text, much like code comments, but with simpler syntax and the ability to include formatting and links more easily through the use of [markdown-formatted text](https://rmarkdown.rstudio.com/lesson-8.html) (or using the new visual editor in RStudio).
+
+When you are ready to share, notebooks like this can easily be converted into a document such as `.html` (web page) or `.docx` (MS Word document) for sharing with others.
+
+**A note on formatting:**
+We like to keep our documents formatted with the philosophy of one sentence per line.
+This interacts well with git and GitHub, which record edits based on the line that changed.
+So keeping each sentence on a separate line makes it easier to see what has changed when editing a large block of text; 
+if we just put spaces between sentences within a paragraph, they would appear to git as a single line, and a change anywhere would look like a change to the whole paragraph.
+To separate paragraphs in markdown, we have to use a blank line, so separating sentences onto their own lines won't affect the final output.
+
+This notebook is an example of an analysis that might be performed using the output of the `01_count-gene-mutations.R` script (though with a lot of meta-commentary about the steps and choices made along the way).
+We are assuming that counting was performed for the low-grade astrocytoma (LGAT), and medulloblastoma MAF files for this notebook.
+If you would like, you can make a copy of this notebook, change the input files (and probably some text), and apply the same analysis to different data sets!
+
+## Setup
+
+### Load libraries
+
+```{r libraries}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+```
+
+### Specify files and paths
+
+We like to specify all our input and output paths toward the top of the notebook, making them easy to find and update as needed.
+During development, we might not know exactly what files are needed at the start, so this may not get *written* first, but having a consistent and prominent place where all paths are defined makes it easy to quickly determine what files are needed and where they will be found.
+
+Since this is an `Rmarkdown` file, all of the file paths will be relative to the location of this file.
+This means that if the file moves, the paths would move, which can be annoying!
+A nice solution we can use is the [`here` package](https://here.r-lib.org), which will allow us to specify paths relative to the project root directory.
+The project root is found by looking for an R project file with the `.Rproj` extension in a parent directory from the file (or a `.git` directory if there is no project file).
+
+We will also take advantage of the fact that the file.path() function (and `here::here()`), allows us to specify paths as a series of comma-separated partial paths, i.e., individual directories and files.
+If we knew everyone were using a UNIX machine, we could use a path like `analysis/gene_counts`, but this is a bit less portable to other systems.
+(Thankfully, paths like this *do* work on Windows now!) Using the separated list of elements also makes it easier to join partial paths together.
+We won't have to worry about whether a partial path ends with a separator slash or not; `file.path()` will add it as needed!
+
+```{r inputs}
+# Set the directory where the counts files are found
+counts_dir <- here::here("analysis", "gene_counts")
+
+# File paths to the counts files for LGAT and medulloblastoma
+lgat_path <- file.path(counts_dir, "LGAT_gene-mutations.tsv")
+mb_path <- file.path(counts_dir, "Medulloblastoma_gene-mutations.tsv")
+
+# Reference directory & FLAGS (frequently mutated genes)
+ref_dir <- here::here("data", "reference")
+flags_path <- file.path(ref_dir, "FLAGS.txt")
+```
+
+```{r outputs}
+# set the directory to save output files
+plots_dir <- here::here("plots", "gene_counts")
+
+# create the plots directory if it does not exist
+if (!dir.exists(plots_dir)){
+  dir.create(plots_dir, recursive = TRUE)
+}
+```
+
+### Define functions
+
+In this section we define any functions that we will use later in the script.
+While we could define functions later, it is nice to have them grouped together near the top of the notebook for at least a few reasons: - The first is that we will always know where to look for function definitions.
+Patterns and conventions make it easier for us to know what to expect when we come back to a file after a while away and may need to make changes - Another reason is that if the function definitions are at the top, we can use them anywhere below, without worrying about invoking a function before it is defined.
+Finally, having the functions grouped together will make it easier if we decide to move them to an external file: - If the set of functions gets large, or if we want to use some functions across multiple notebooks, we can create a separate `.R` file (or files) and then use the `source()` command to load those functions into this notebook (or others) all at once.
+
+In this case, we will only have one function, which will make a plot of the number of samples with mutations for each gene.
+We'll give it some options to allow filtering to a minimum number of samples mutated, and highlighting of particular genes of interest.
+
+Importantly, we will be sure to include some comments with documentation of the arguments for the function, as well as a description of what the function will return.
+
+To make this a bit more structured we will use a format called roxygen for these comments, which would be useful for automatically generating documentation if we were creating an R package.
+We aren't doing that here, but it is still a nice enough convention, and RStudio has an option in the `Code` menu called `Insert Roxygen Skeleton` that can save us a bunch of typing and create the outline of what we need in a single step.
+
+```{r mutation_plot_function}
+#' Plot the number of  mutations for each gene from a data frame
+#'  Filters to a cutoff and sorts genes from most to least mutated, 
+#'  and optionally highlights genes of interest.
+#'
+#' @param mutations_df A data frame with columns `Hugo_Symbol` and `mutated_samples`
+#' @param min_mutated The minimum `mutated_samples` value to include in the plot
+#'  (default: 3)
+#' @param highlight_genes A vector of genes to highlight in the plot (optional)
+#' @param highlight_title The title for the highlighted genes legend 
+#'
+#' @return A ggplot2 plot object
+#'
+plot_gene_mutations <- function(
+  mutations_df,  
+  min_mutated = 3,
+  highlight_genes = c(),
+  highlight_title = "Gene of interest"
+){
+  plot_df <- mutations_df %>%
+    filter(mutated_samples >= min_mutated) %>%
+    arrange(desc(mutated_samples)) %>%
+    # make the gene names a factor, in the order they appear after sorting
+    mutate(gene = factor(Hugo_Symbol, levels = Hugo_Symbol))
+  
+  if (length(highlight_genes) == 0){
+    # If there are no highlight genes, we don't include that in the ggplot aesthetics
+    plot_obj <- ggplot(plot_df, 
+                       aes(x = gene, 
+                           y = mutated_samples))
+  } else {
+    # There are highlight genes, so add them to the data frame
+    plot_df <- plot_df %>%
+      mutate(
+        # add a column with the highlight status, make it a factor for ordering
+        highlight = ifelse(gene %in% highlight_genes, "Yes", "No"),
+        highlight = factor(highlight, levels = c("Yes", "No"))
+      )
+    # create the plot object with colored fill
+    plot_obj <- ggplot(plot_df, 
+                       aes(x = gene, 
+                           y = mutated_samples,
+                           fill = highlight)) 
+  }
+  
+  # Add layers and formatting to the plot
+  plot_obj <- plot_obj +
+    geom_col() + 
+    labs(x = "Gene symbol",
+         y = "Mutated samples",
+         fill = highlight_title) + 
+    theme_bw() + 
+    theme(axis.text.x = element_text(angle=45,hjust=1)) + 
+    scale_fill_brewer(palette = "Set1")
+    
+  return(plot_obj)
+}
+```
+
+## Gene mutation exploration
+
+Now that we have done all of our setup, we can move on to the bulk of the work.
+
+### Reading data
+
+We'll first read in the data for the two cancer types that we had defined input paths for in the setup section.
+
+```{r read_data}
+# read in mutation count files for plotting
+lgat_df <- readr::read_tsv(lgat_path)
+mb_df <- readr::read_tsv(mb_path)
+```
+
+We will also read in the table of genes frequently mutated in exons:
+
+```{r read_flags}
+flags_df <- readr::read_tsv(flags_path)
+```
+
+### Quick stats
+
+Usually at this stage of an analysis we might want to get some quick statistics about the data that we just read in.
+Here we will calculate and print out the number of genes in each of the tables.
+
+```{r}
+cat("LGAT mutated gene count:", nrow(lgat_df))
+cat("\n") # print return between
+cat("Medulloblastoma mutated gene count: ", nrow(mb_df))
+```
+
+**A note on code chunk names:** 
+You might have noticed that in most of the previous code chunks, I included some text in the `{r}` brackets on the first line of the chunk, which serves as the name of the chunk.
+The use of these names is a bit controversial among members of the Data Lab.
+Some of us like them for the clarity and the fact that they allow easy navigation in RStudio.
+Others find that they get out of sync with the code inside them and can be more trouble than they are worth.
+In particular, no two chunks can have the same name, so sometimes duplicating or splitting a chunk can accidentally create a notebook that won't render properly.
+Your preferred method is up to you: here we are using names for chunks with defined purpose, but not for the more exploratory, iterative chunks in this section and the next.
+
+
+### Make plots
+
+We'll start by using the most basic version of the plotting function we defined earlier, with no highlighting, using the LGAT data:
+
+```{r}
+plot_gene_mutations(lgat_df)
+```
+
+We do want to make sure we highlight any frequently mutated genes, so let's add that argument, highlighting the genes from the FLAGS data set (stored in `flags_df`):
+
+```{r}
+plot_gene_mutations(lgat_df, 
+                    highlight_genes = flags_df$gene, 
+                    highlight_title = "Frequently mutated")
+```
+
+If we want, we can save the plot object we made into its own variable, and since it is a ggplot object, we can also add additional content or formatting that the function might not have supported.
+
+```{r}
+lgat_plot <- plot_gene_mutations(lgat_df, 
+                                 highlight_genes = flags_df$gene, 
+                                 highlight_title = "Frequently mutated")
+
+# add a title to the plot
+lgat_plot <- lgat_plot + labs(title = "LGAT mutation counts")
+
+# view the plot
+lgat_plot
+```
+
+Now let's repeat that for the medulloblastoma data.
+
+```{r}
+mb_plot <- plot_gene_mutations(mb_df, 
+                               highlight_genes = flags_df$gene, 
+                              highlight_title = "Frequently mutated")
+
+# add a title to the plot
+mb_plot <- mb_plot + labs(title = "Medulloblastoma mutation counts")
+
+# view the plot
+mb_plot
+```
+
+That plot seems to be a bit cluttered, so we will make the x axis labels a bit smaller:
+
+```{r}
+mb_plot <- mb_plot + theme(axis.text.x = element_text(size = 7))
+
+mb_plot
+```
+
+### Saving plots
+
+If we are happy with the plots, we can save them.
+We didn't define the output plot file names at the top, just the directory, so we will create the file names now (using `file.path()` again!)
+.
+In most cases, this will be just fine, but if the output here were likely to be feeding into another analysis, I would probably want to be more careful about defining all the outputs at the top of the notebook.
+
+```{r save_plots}
+ggsave(file.path(plots_dir, "LGAT_mutation-counts.png"), mb_plot)
+ggsave(file.path(plots_dir, "Medulloblastoma_mutation-counts.png"), mb_plot)
+```
+
+
+## Session information
+
+We like to end all of our notebooks with a call to a function that provides a brief report about the versions of R and all packages that were used in the notebook.
+This can be very useful for debugging down the line, as different versions of packages, R, or even the operating system can sometimes result in slightly or significantly differen outputs.
+
+The most common such function is `sessionInfo()`, which is part of base R and is what I am using here, but a nice alternative is the function `sessioninfo::session_info()` (part of the `sessioninfo` package\`), which provides a somewhat more neatly-formatted report with a bit more information.
+
+```{r session_info}
+sessionInfo()
+```
