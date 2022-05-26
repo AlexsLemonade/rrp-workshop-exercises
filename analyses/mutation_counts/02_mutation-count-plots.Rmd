@@ -28,12 +28,27 @@ If you would like, you can make a copy of this notebook, change the input files 
 
 ## Setup
 
-### Load libraries
+### Load packages
 
-```{r libraries}
-library(dplyr)
-library(ggplot2)
-library(magrittr)
+Loading the packages you plan to use frequently first is usually good practice. 
+However, we don't always load all of the packages we plan to use, as loading a package does take some time.
+In the code below, you will sometimes see that we use functions with the form `package::function()`. 
+This `::` notation tells R to use the function from a particular package, whether it has been loaded with `library()` or not.
+This can be more efficient if you are only using a single function from a package, and provides extra context about which package provided a particular function, which can be easy to lose track of if many packages are loaded.
+
+
+The `::` notation also can avoid errors when more than one package uses the same name for a function. 
+In that case, the most recently loaded function will be used, but that may not be what you want!
+One of the most commonly seen conflicts is from the `dplyr` package, which has some of the same function names as base R packages, as you can see in the warning messages printed when it loads below.
+
+In the `01_count-gene-mutations.R` script, we used the `dplyr::` prefix for all of the `dplyr` functions to avoid this conflict and provide the extra context.
+In this notebook, we load the `dplyr` package despite that risk, with the knowledge that we will not be using the base R versions of these particular functions.
+
+
+```{r packages}
+library(dplyr) # data wrangling tools
+library(ggplot2) # the plotting package we will use
+library(magrittr) # the "pipe" we will use to facilitate sequential operations
 ```
 
 ### Specify files and paths

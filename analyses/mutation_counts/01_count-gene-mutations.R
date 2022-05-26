@@ -21,7 +21,7 @@
 #   --maf mutations.maf.tsv.gz \
 #   --outfile gene_counts.tsv
 
-# Load libraries -----------------------------------
+# Load packages -----------------------------------
 library(optparse)
 library(magrittr)
 
