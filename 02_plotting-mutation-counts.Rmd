@@ -9,21 +9,21 @@ output:
 
 ## Introduction
 
-We at the Data Lab really like using notebook documents like [Rmarkdown](https://rmarkdown.rstudio.com) (this document) and [Jupyter](https://jupyter.org) for development and data exploration.
-Notebooks allow mixing of text, code, and results in a single document that is easy to work with interactively.
-This allows much more freedom to include a lot of explanatory text, much like code comments, but with simpler syntax and the ability to include formatting and links more easily through the use of [markdown-formatted text](https://rmarkdown.rstudio.com/lesson-8.html) (or using the new visual editor in RStudio).
+At the Data Lab, we really like using notebook documents like [Rmarkdown](https://rmarkdown.rstudio.com) (this document) and [Jupyter](https://jupyter.org) for development and data exploration.
+Notebooks allow you to combine text, code, and results in a single document that is easy to work with interactively.
+Using notebooks allows much more freedom to include a lot of explanatory text, much like code comments, but with simpler syntax and the ability to include formatting and links more easily through the use of [markdown-formatted text](https://rmarkdown.rstudio.com/lesson-8.html) (or using the [new visual editor in RStudio](https://www.rstudio.com/blog/exploring-rstudio-visual-markdown-editor/)).
 
-When you are ready to share, notebooks like this can easily be converted into a document such as `.html` (web page) or `.docx` (MS Word document) for sharing with others.
+When you are ready to share your results with others, notebooks like this can easily be converted into a document such as `.html` (web page) or `.docx` (MS Word), results, plots, and all.
 
 **A note on formatting:**
 We like to keep our documents formatted with the philosophy of one sentence per line.
-This interacts well with git and GitHub, which record edits based on the line that changed.
+This approach interacts well with git and GitHub, which record edits based on the line that changed.
 So keeping each sentence on a separate line makes it easier to see what has changed when editing a large block of text; 
 if we just put spaces between sentences within a paragraph, they would appear to git as a single line, and a change anywhere would look like a change to the whole paragraph.
 To separate paragraphs in markdown, we have to use a blank line, so separating sentences onto their own lines won't affect the final output.
 
 This notebook is an example of an analysis that might be performed using the output of the `01_count-gene-mutations.R` script (though with a lot of meta-commentary about the steps and choices made along the way).
-We are assuming that counting was performed for the low-grade astrocytoma (LGAT), and medulloblastoma MAF files for this notebook.
+We are assuming that counting was performed for the low-grade astrocytoma (LGAT) and medulloblastoma MAF files for this notebook.
 If you would like, you can make a copy of this notebook, change the input files (and probably some text), and apply the same analysis to different data sets!
 
 ## Setup
@@ -46,9 +46,10 @@ This means that if the file moves, the paths would move, which can be annoying!
 A nice solution we can use is the [`here` package](https://here.r-lib.org), which will allow us to specify paths relative to the project root directory.
 The project root is found by looking for an R project file with the `.Rproj` extension in a parent directory from the file (or a `.git` directory if there is no project file).
 
-We will also take advantage of the fact that the file.path() function (and `here::here()`), allows us to specify paths as a series of comma-separated partial paths, i.e., individual directories and files.
-If we knew everyone were using a UNIX machine, we could use a path like `analysis/gene_counts`, but this is a bit less portable to other systems.
-(Thankfully, paths like this *do* work on Windows now!) Using the separated list of elements also makes it easier to join partial paths together.
+We will also take advantage of the fact that the `file.path()` function (and the `here::here()` function), allows us to specify paths as a series of comma-separated partial paths, i.e., individual directories and files.
+If we knew everyone were using a UNIX machine, we could use a path like `analysis/gene_counts`, but this syntax is a bit less portable to other systems.
+(Thankfully, paths like this *do* work on Windows now!)
+Using the separated list of elements also makes it easier to join partial paths together.
 We won't have to worry about whether a partial path ends with a separator slash or not; `file.path()` will add it as needed!
 
 ```{r inputs}
@@ -82,12 +83,12 @@ Patterns and conventions make it easier for us to know what to expect when we co
 Finally, having the functions grouped together will make it easier if we decide to move them to an external file: - If the set of functions gets large, or if we want to use some functions across multiple notebooks, we can create a separate `.R` file (or files) and then use the `source()` command to load those functions into this notebook (or others) all at once.
 
 In this case, we will only have one function, which will make a plot of the number of samples with mutations for each gene.
-We'll give it some options to allow filtering to a minimum number of samples mutated, and highlighting of particular genes of interest.
+We'll give it some options to allow filtering to a minimum number of mutated samples and highlighting particular genes of interest.
 
 Importantly, we will be sure to include some comments with documentation of the arguments for the function, as well as a description of what the function will return.
 
-To make this a bit more structured we will use a format called roxygen for these comments, which would be useful for automatically generating documentation if we were creating an R package.
-We aren't doing that here, but it is still a nice enough convention, and RStudio has an option in the `Code` menu called `Insert Roxygen Skeleton` that can save us a bunch of typing and create the outline of what we need in a single step.
+To make these comments a bit more structured, we could use a format called `roxygen` for these comments, which would be useful for automatically generating documentation if we were creating an R package.
+We aren't generating separate documentation files here, but it is still a nice enough convention, and RStudio has an option in the `Code` menu called `Insert Roxygen Skeleton` that can save us a bunch of typing and create the outline of what we need in a single step.
 
 ```{r mutation_plot_function}
 #' Plot the number of  mutations for each gene from a data frame
@@ -144,6 +145,7 @@ plot_gene_mutations <- function(
     theme(axis.text.x = element_text(angle=45,hjust=1)) + 
     scale_fill_brewer(palette = "Set1")
     
+  # Return the plot
   return(plot_obj)
 }
 ```
@@ -185,7 +187,7 @@ The use of these names is a bit controversial among members of the Data Lab.
 Some of us like them for the clarity and the fact that they allow easy navigation in RStudio.
 Others find that they get out of sync with the code inside them and can be more trouble than they are worth.
 In particular, no two chunks can have the same name, so sometimes duplicating or splitting a chunk can accidentally create a notebook that won't render properly.
-Your preferred method is up to you: here we are using names for chunks with defined purpose, but not for the more exploratory, iterative chunks in this section and the next.
+Here we are using names for chunks with defined purpose, but not for the more exploratory, iterative chunks in this section and the next, but your preferred method is up to you!
 
 
 ### Make plots
@@ -243,12 +245,11 @@ mb_plot
 ### Saving plots
 
 If we are happy with the plots, we can save them.
-We didn't define the output plot file names at the top, just the directory, so we will create the file names now (using `file.path()` again!)
-.
-In most cases, this will be just fine, but if the output here were likely to be feeding into another analysis, I would probably want to be more careful about defining all the outputs at the top of the notebook.
+We didn't define the output plot file names at the top, just the directory, so we will create the file names now (using `file.path()` again!).
+In most cases, defining outputs here in the notebook will be just fine, but if the output here were likely to be feeding into another analysis, I would probably want to be more careful and define all the outputs at the top of the notebook.
 
 ```{r save_plots}
-ggsave(file.path(plots_dir, "LGAT_mutation-counts.png"), mb_plot)
+ggsave(file.path(plots_dir, "LGAT_mutation-counts.png"), lgat_plot)
 ggsave(file.path(plots_dir, "Medulloblastoma_mutation-counts.png"), mb_plot)
 ```
 
@@ -258,7 +259,7 @@ ggsave(file.path(plots_dir, "Medulloblastoma_mutation-counts.png"), mb_plot)
 We like to end all of our notebooks with a call to a function that provides a brief report about the versions of R and all packages that were used in the notebook.
 This can be very useful for debugging down the line, as different versions of packages, R, or even the operating system can sometimes result in slightly or significantly differen outputs.
 
-The most common such function is `sessionInfo()`, which is part of base R and is what I am using here, but a nice alternative is the function `sessioninfo::session_info()` (part of the `sessioninfo` package\`), which provides a somewhat more neatly-formatted report with a bit more information.
+The most common such function is `sessionInfo()`, which is part of base R and is what we are using here, but a nice alternative is the function `sessioninfo::session_info()` (part of the `sessioninfo` package), which provides a somewhat more neatly-formatted report with a bit more information.
 
 ```{r session_info}
 sessionInfo()
