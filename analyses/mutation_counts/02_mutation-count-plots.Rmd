@@ -31,24 +31,25 @@ If you would like, you can make a copy of this notebook, change the input files 
 ### Load packages
 
 Loading the packages you plan to use frequently first is usually good practice. 
-However, we don't always load all of the packages we plan to use, as loading a package does take some time.
+However, we don't always have to load all of the packages we plan to use.
 In the code below, you will sometimes see that we use functions with the form `package::function()`. 
 This `::` notation tells R to use the function from a particular package, whether it has been loaded with `library()` or not.
-This can be more efficient if you are only using a single function from a package, and provides extra context about which package provided a particular function, which can be easy to lose track of if many packages are loaded.
+This can be more efficient if you are only using a single function from a package, and it has the additional benefit of providing extra context about which package provided a particular function, which can be easy to lose track of if many packages are loaded, or when using an unfamiliar package.
 
-
-The `::` notation also can avoid errors when more than one package uses the same name for a function. 
+The `::` notation can also help avoid errors when more than one package uses the same name for a function. 
 In that case, the most recently loaded function will be used, but that may not be what you want!
 One of the most commonly seen conflicts is from the `dplyr` package, which has some of the same function names as base R packages, as you can see in the warning messages printed when it loads below.
 
 In the `01_count-gene-mutations.R` script, we used the `dplyr::` prefix for all of the `dplyr` functions to avoid this conflict and provide the extra context.
-In this notebook, we load the `dplyr` package despite that risk, with the knowledge that we will not be using the base R versions of these particular functions.
+In this notebook, we load the `dplyr` package (despite the risk) with the knowledge that we will not be using the base R versions of the conflicting functions.
+We can also take comfort in the fact that we and others reading the code are likely to be familiar with the (commonly-used) `dplyr` package, and with `ggplot2`, which we will be using for our plots.
+
 
 
 ```{r packages}
 library(dplyr) # data wrangling tools
 library(ggplot2) # the plotting package we will use
-library(magrittr) # the "pipe" we will use to facilitate sequential operations
+library(magrittr) # the "pipe" (%>%) we will use to facilitate sequential operations
 ```
 
 ### Specify files and paths
@@ -69,7 +70,7 @@ We won't have to worry about whether a partial path ends with a separator slash 
 
 ```{r inputs}
 # Set the directory where the counts files are found
-counts_dir <- here::here("analysis", "gene_counts")
+counts_dir <- here::here("analyses", "mutation_counts")
 
 # File paths to the counts files for LGAT and medulloblastoma
 lgat_path <- file.path(counts_dir, "LGAT_gene-mutations.tsv")
