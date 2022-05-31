@@ -265,6 +265,8 @@ mb_plot
 ### Saving plots
 
 If we are happy with the plots, we can save them.
+We do want to be sure to specify the width and height of the saved plots, as that can sometimes change unpredictably depending on the R environment.
+
 We didn't define the output plot file names at the top, just the directory, so we will create the file names now (using `file.path()` again!).
 
 In most cases, defining outputs here in the notebook will be just fine, but if the output here were likely to be feeding into another analysis, I would probably want to be more careful and define all the outputs at the top of the notebook.
