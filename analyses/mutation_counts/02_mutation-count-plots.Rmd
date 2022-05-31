@@ -58,15 +58,15 @@ We like to specify all our input and output paths toward the top of the notebook
 During development, we might not know exactly what files are needed at the start, so this may not get *written* first, but having a consistent and prominent place where all paths are defined makes it easy to quickly determine what files are needed and where they will be found.
 
 Since this is an `Rmarkdown` file, all of the file paths will be relative to the location of this file.
-This means that if the file moves, the paths would move, which can be annoying!
-A nice solution we can use is the [`here` package](https://here.r-lib.org), which will allow us to specify paths relative to the project root directory.
+This means that if the `Rmarkdown` file moves, the relative paths to files we are interacting with would change, which can be annoying and confusing!
+A nice solution to help manage paths we can use is the [`here` package](https://here.r-lib.org), which will allow us to specify paths relative to the project root directory.
 The project root is found by looking for an R project file with the `.Rproj` extension in a parent directory from the file (or a `.git` directory if there is no project file).
 
 We will also take advantage of the fact that the `file.path()` function (and the `here::here()` function), allows us to specify paths as a series of comma-separated partial paths, i.e., individual directories and files.
 If we knew everyone were using a UNIX machine, we could use a path like `analysis/gene_counts`, but this syntax is a bit less portable to other systems.
 (Thankfully, paths like this *do* work on Windows now!)
 Using the separated list of elements also makes it easier to join partial paths together.
-We won't have to worry about whether a partial path ends with a separator slash or not; `file.path()` will add it as needed!
+We won't have to worry about whether a partial path ends with a separator slash  (`/`) or not; `file.path()` will add it as needed!
 
 ```{r inputs}
 # Set the directory where the counts files are found
