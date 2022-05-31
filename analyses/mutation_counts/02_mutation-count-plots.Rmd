@@ -81,9 +81,13 @@ ref_dir <- here::here("data", "reference")
 flags_path <- file.path(ref_dir, "FLAGS.txt")
 ```
 
+While a rendered version of this notebook complete with plots will be saved in the same location as this file, it can be useful to have a separate location for "presentation-ready" plots.
+You might have that as a subfolder of the analysis folder, or, as we do here, a separate `plots` location that might be used for multiple analyses.
+We still want to keep that separate location organized, so we will make a subfolder to hold the output from this particular analysis.
+
 ```{r outputs}
-# set the directory to save output files
-plots_dir <- here::here("plots", "gene_counts")
+# set the directory to save output plots
+plots_dir <- here::here("plots", "mutation_counts")
 
 # create the plots directory if it does not exist
 if (!dir.exists(plots_dir)){
@@ -241,7 +245,7 @@ Now let's repeat that for the medulloblastoma data.
 ```{r}
 mb_plot <- plot_gene_mutations(mb_df, 
                                highlight_genes = flags_df$gene, 
-                              highlight_title = "Frequently mutated")
+                               highlight_title = "Frequently mutated")
 
 # add a title to the plot
 mb_plot <- mb_plot + labs(title = "Medulloblastoma mutation counts")
@@ -262,11 +266,22 @@ mb_plot
 
 If we are happy with the plots, we can save them.
 We didn't define the output plot file names at the top, just the directory, so we will create the file names now (using `file.path()` again!).
+
 In most cases, defining outputs here in the notebook will be just fine, but if the output here were likely to be feeding into another analysis, I would probably want to be more careful and define all the outputs at the top of the notebook.
 
 ```{r save_plots}
-ggsave(file.path(plots_dir, "LGAT_mutation-counts.png"), lgat_plot)
-ggsave(file.path(plots_dir, "Medulloblastoma_mutation-counts.png"), mb_plot)
+ggsave(
+  file.path(plots_dir, "LGAT_mutation-counts.png"), 
+  lgat_plot,
+  width = 7, 
+  height = 7
+)
+ggsave(
+  file.path(plots_dir, "Medulloblastoma_mutation-counts.png"), 
+  mb_plot,
+  width = 7,
+  height = 7
+)
 ```
 
 
