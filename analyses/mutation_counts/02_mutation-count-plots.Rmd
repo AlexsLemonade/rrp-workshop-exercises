@@ -120,6 +120,7 @@ We aren't generating separate documentation files here, but it is still a nice e
 #'  (default: 3)
 #' @param highlight_genes A vector of genes to highlight in the plot (optional)
 #' @param highlight_title The title for the highlighted genes legend 
+#'  (default: "Gene of interest")
 #'
 #' @return A ggplot2 plot object
 #'
