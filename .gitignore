@@ -1,4 +1,8 @@
-
 # History files
 .Rhistory
+.RData
 .Rproj.user
+.Ruserdata
+
+# macOS hidden file
+.DS_Store
