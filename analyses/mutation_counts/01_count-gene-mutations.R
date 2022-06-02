@@ -17,11 +17,11 @@
 
 # Example invocation:
 #
-# Rscript count_gene_mutations.R \
+# Rscript 01_count-gene-mutations.R \
 #   --maf mutations.maf.tsv.gz \
 #   --outfile gene_counts.tsv
 
-# Load libraries -----------------------------------
+# Load packages -----------------------------------
 library(optparse)
 library(magrittr)
 
