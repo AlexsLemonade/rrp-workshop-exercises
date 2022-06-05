@@ -107,13 +107,15 @@ We'll give it some options to allow filtering to a minimum number of mutated sam
 
 Importantly, we will be sure to include some comments with documentation of the arguments for the function, as well as a description of what the function will return.
 
-To make these comments a bit more structured, we could use a format called `roxygen` for these comments, which would be useful for automatically generating documentation if we were creating an R package.
+To make these comments a bit more structured, we will use the format from the [`roxygen2`](https://roxygen2.r-lib.org/) package for these comments, which would be useful for automatically generating documentation if we were creating an R package.
 We aren't generating separate documentation files here, but it is still a nice enough convention, and RStudio has an option in the `Code` menu called `Insert Roxygen Skeleton` that can save us a bunch of typing and create the outline of what we need in a single step.
 
 ```{r mutation_plot_function}
 #' Plot the number of  mutations for each gene from a data frame
-#'  Filters to a cutoff and sorts genes from most to least mutated, 
-#'  and optionally highlights genes of interest.
+#'  
+#' Filters to a cutoff and sorts genes from most to least mutated, then 
+#' creates a bar plot of the mutation counts, optionally highlighting 
+#' genes of interest.
 #'
 #' @param mutations_df A data frame with columns `Hugo_Symbol` and `mutated_samples`
 #' @param min_mutated The minimum `mutated_samples` value to include in the plot
