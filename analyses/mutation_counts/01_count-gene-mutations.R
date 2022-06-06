@@ -48,15 +48,13 @@ option_list <- list(
     opt_str = c("--vaf", "-v"),
     type = "numeric",
     default = 0.05,
-    help = "Minimum variant allele fraction to include (default 0.05)",
-    metavar = "numeric"
+    help = "Minimum variant allele fraction to include (default 0.05)"
   ),
   make_option(
     opt_str = c("--min_depth", "-d"),
     type = "numeric",
     default = 0,
-    help = "Minimum sequencing depth to include (default 0)",
-    metavar = "numeric"
+    help = "Minimum sequencing depth to include (default 0)"
   ),
   # This option is boolean, so can be invoked with just the flag and no following value
   make_option(
