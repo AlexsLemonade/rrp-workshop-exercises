@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Define relative path to data from this script
-DATA_DIR=../../data/processed/maf_files/
+DATA_DIR=../../data/processed/maf_files
 
 # Run the code over each of the following MAF names using a for loop
 for NAME in Ependymoma Ganglioglioma LGAT Medulloblastoma; do
@@ -12,12 +12,12 @@ for NAME in Ependymoma Ganglioglioma LGAT Medulloblastoma; do
     MAF_FILE=$NAME.maf.tsv.gz
 
     # Define output file(s)
-    RESULT_FILE=$NAME-gene_counts.tsv
+    RESULT_FILE=${NAME}_gene-mutations.tsv
 
     # Run the script to process the MAF file and export a table of gene counts
-    Rscript 01_count-gene-mutations.R \ 
-      --maf $DATA_DIR/$MAF_FILE \
-      --outfile $RESULT_FILE
+    Rscript 01_count-gene-mutations.R \
+     --maf $DATA_DIR/$MAF_FILE \
+     --outfile $RESULT_FILE
 
 done
 
