@@ -76,10 +76,6 @@ if(!file.exists(opts$maf)){
   stop("The specified MAF file does not exist.")
 }
 
-# only need to check the excluded file if it was defined
-if(!is.null(opts$exclude_genes) && file.exists(opts$exclude_genes)){
-  stop("The specified 'excludes_genes' file does not exist.")
-}
 
 # Define constants --------------------------------------
 
@@ -109,14 +105,6 @@ nonsyn_class <- c(
 
 # Read input MAF file
 maf_df <- readr::read_tsv(opts$maf)
-
-# Get the excluded genes list if provided
-if(!is.null(opts$exclude_genes)){
-  exclude_genes <- readr::read_tsv(opts$exclude_file) %>%
-    dplyr::pull("gene")
-} else {
-  exclude_genes <- c()
-}
 
 # Select mutations to keep based on command line option
 include_class <- nonsyn_class
