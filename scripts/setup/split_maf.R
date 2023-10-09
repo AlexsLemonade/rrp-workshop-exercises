@@ -7,7 +7,6 @@
 # Load libraries
 suppressPackageStartupMessages({
   library(optparse)
-  library(magrittr)
   library(dplyr)
 })
 
@@ -25,8 +24,8 @@ suppressPackageStartupMessages({
 #'
 filter_write_maf <- function(histology, sample_df, maf_df, outdir, suffix = ".maf.tsv.gz"){
   # get samples
-  sample_ids <- sample_df %>%
-    filter(short_histology == histology) %>%
+  sample_ids <- sample_df |>
+    filter(short_histology == histology) |>
     pull(Kids_First_Biospecimen_ID)
   
   # set output file path
@@ -34,8 +33,8 @@ filter_write_maf <- function(histology, sample_df, maf_df, outdir, suffix = ".ma
                         paste0(gsub(" ", "_", histology), suffix))
   
   # filter maf and write
-  maf_df %>%
-    filter(Tumor_Sample_Barcode %in% sample_ids) %>%
+  maf_df |>
+    filter(Tumor_Sample_Barcode %in% sample_ids) |>
     readr::write_tsv(maf_path)
 }
 
@@ -80,20 +79,20 @@ if(!dir.exists(opts$outdir)){
 }
 
 # read and filter sample info
-samples_df <- readr::read_tsv(opts$sample_info) %>%
+samples_df <- readr::read_tsv(opts$sample_info) |>
   select(
     Kids_First_Biospecimen_ID,
     short_histology,
     experimental_strategy
   )
 
-histologies <- samples_df %>%
+histologies <- samples_df |>
   filter(
     !is.na(short_histology), 
     experimental_strategy == "WGS"
-  ) %>%
-  count(short_histology, sort = TRUE) %>%
-  head(n = opts$n_splits) %>%
+  ) |>
+  count(short_histology, sort = TRUE) |>
+  head(n = opts$n_splits) |>
   pull(short_histology)
 
 
@@ -101,7 +100,7 @@ histologies <- samples_df %>%
 maf_df <- readr::read_tsv(opts$maf)
 
 # filter and write for each type
-histologies %>%
+histologies |>
   purrr::walk(
     filter_write_maf,
     sample_df = samples_df,
