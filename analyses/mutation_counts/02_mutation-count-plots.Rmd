@@ -49,7 +49,6 @@ We can also take comfort in the fact that we and others reading the code are lik
 ```{r packages}
 library(dplyr) # data wrangling tools
 library(ggplot2) # the plotting package we will use
-library(magrittr) # the "pipe" (%>%) we will use to facilitate sequential operations
 ```
 
 ### Specify files and paths
@@ -132,9 +131,9 @@ plot_gene_mutations <- function(
   highlight_genes = c(),
   highlight_title = "Gene of interest"
 ){
-  plot_df <- mutations_df %>%
-    filter(mutated_samples >= min_mutated) %>%
-    arrange(desc(mutated_samples)) %>%
+  plot_df <- mutations_df |>
+    filter(mutated_samples >= min_mutated) |>
+    arrange(desc(mutated_samples)) |>
     # make the gene names a factor, in the order they appear after sorting
     mutate(gene = factor(Hugo_Symbol, levels = Hugo_Symbol))
   
@@ -145,7 +144,7 @@ plot_gene_mutations <- function(
                            y = mutated_samples))
   } else {
     # There are highlight genes, so add them to the data frame
-    plot_df <- plot_df %>%
+    plot_df <- plot_df |>
       mutate(
         # add a column with the highlight status, make it a factor for ordering
         highlight = ifelse(gene %in% highlight_genes, "Yes", "No"),
@@ -295,7 +294,7 @@ ggsave(
 We like to end all of our notebooks with a call to a function that provides a brief report about the versions of R and all packages that were used in the notebook.
 This can be very useful for debugging down the line, as different versions of packages, R, or even the operating system can sometimes result in slightly or significantly differen outputs.
 
-The most common such function is `sessionInfo()`, which is part of base R and is what we are using here, but a nice alternative is the function `sessioninfo::session_info()` (part of the `sessioninfo` package), which provides a somewhat more neatly-formatted report with a bit more information.
+The most common such function is `sessionInfo()`, which is part of base R and is what we are using here, but a nice alternative is the function `sessioninfo::session_info()` (part of the [`sessioninfo` package](https://sessioninfo.r-lib.org/)), which provides a somewhat more neatly-formatted report with a bit more information.
 
 ```{r session_info}
 sessionInfo()
