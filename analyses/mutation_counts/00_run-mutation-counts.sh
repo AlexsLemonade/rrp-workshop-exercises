@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+# Navigate to this script's directory to ensure 
+#  relative paths are correct
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
 # Define relative path to data from this script
 DATA_DIR=../../data/processed/maf_files
 

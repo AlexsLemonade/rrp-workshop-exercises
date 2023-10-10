@@ -23,7 +23,6 @@
 
 # Load packages -----------------------------------
 library(optparse)
-library(magrittr)
 
 # Set up options -----------------------------------
 
@@ -113,7 +112,7 @@ if(opts$include_syn){
 }
 
 # Process the MAF table
-muts_df <- maf_df %>%
+muts_df <- maf_df |>
   # select only the fields we need
   dplyr::select(
     Tumor_Sample_Barcode,
@@ -124,9 +123,9 @@ muts_df <- maf_df %>%
     t_depth,
     t_ref_count,
     t_alt_count
-  ) %>%
+  ) |>
   # Calculate VAF
-  dplyr::mutate(vaf = t_alt_count / (t_ref_count + t_alt_count)) %>%
+  dplyr::mutate(vaf = t_alt_count / (t_ref_count + t_alt_count)) |>
   # Filter by VAF, min depth & Classification
   dplyr::filter(
     vaf >= opts$vaf,
@@ -135,16 +134,16 @@ muts_df <- maf_df %>%
   )
 
 # Count mutations by sample and gene
-sample_gene_counts <- muts_df %>%
+sample_gene_counts <- muts_df |>
   dplyr::count(Tumor_Sample_Barcode, Hugo_Symbol, name = "mut_count")
 
 # Count mutations by gene
-gene_counts <- sample_gene_counts %>%
-  dplyr::group_by(Hugo_Symbol) %>%
+gene_counts <- sample_gene_counts |>
+  dplyr::group_by(Hugo_Symbol) |>
   dplyr::summarise(
     mutated_samples = dplyr::n(),
     total_muts = sum(mut_count)
-  ) %>%
+  ) |>
   # Sort genes by sample count, then total (descending)
   dplyr::arrange(desc(mutated_samples), desc(total_muts))
 
