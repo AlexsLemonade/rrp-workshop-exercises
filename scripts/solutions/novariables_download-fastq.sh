@@ -22,7 +22,7 @@ mv SRR11518889_1.fastq.gz ../data/raw/fastq/SRP255885/
 ##### Process the R2 file #####
 
 # Print an indicator:
-echo "Obtaining NC16_S1_L004_R2_001.fastq.gz"
+echo "Obtaining SRR11518889_2.fastq.gz"
 
 # Curl the file (using one of several approaches)
 curl -O ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR115/089/SRR11518889/SRR11518889_2.fastq.gz
