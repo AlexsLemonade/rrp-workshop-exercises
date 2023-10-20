@@ -5,9 +5,9 @@ set -euo pipefail
 STUDY_ID="SRP255885"
 
 # Define file names
-FASTQ_R1="NC16_S1_L004_R1_001.fastq.gz"
-FASTQ_R2="NC16_S1_L004_R2_001.fastq.gz"
-FASTQ_URL="https://sra-download.ncbi.nlm.nih.gov/traces/sra63/SRZ/011518/SRR11518889"
+FASTQ_R1="SRR11518889_1.fastq.gz"
+FASTQ_R2="SRR11518889_2.fastq.gz"
+FASTQ_URL="ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR115/089/SRR11518889"
 
 # Define and create destination directory for FASTQ files to live in
 FASTQ_DEST="../data/raw/fastq/$STUDY_ID/"
