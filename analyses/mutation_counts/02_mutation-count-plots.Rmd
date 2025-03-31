@@ -69,7 +69,7 @@ We won't have to worry about whether a partial path ends with a separator slash 
 
 ```{r inputs}
 # Set the directory where the counts files are found
-counts_dir <- here::here("analyses", "mutation_counts")
+counts_dir <- here::here("results", "mutation_counts")
 
 # File paths to the counts files for LGAT and medulloblastoma
 lgat_path <- file.path(counts_dir, "LGAT_gene-mutations.tsv")
