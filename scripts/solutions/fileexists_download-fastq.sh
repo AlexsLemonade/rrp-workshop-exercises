@@ -12,20 +12,28 @@ FASTQ_R1="SRR11518889_1.fastq.gz"
 FASTQ_R2="SRR11518889_2.fastq.gz"
 FASTQ_URL="ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR115/089/SRR11518889"
 
-# Define and create destination directory for FASTQ files to live in
+# Define and create destination directories for FASTQ files to live in
 FASTQ_DEST="../data/raw/fastq/${STUDY_ID}"
-mkdir -p $FASTQ_DEST
+TRIMMED_DIR="../data/trimmed/${STUDY_ID}"
+REPORTS_DIR="../reports/fastp"
+
+mkdir -p $FASTQ_DEST $TRIMMED_DIR $REPORTS_DIR
 
 ##### Process the R1 file #####
 
-# Print an indicator:
-echo "Obtaining $FASTQ_R1"
+# If the file doesn't exist, then we need to download it
+if [ ! -e "$FASTQ_DEST/$FASTQ_R1" ]; then
 
-# Curl the file (using one of several approaches)
-curl -O $FASTQ_URL/$FASTQ_R1 # this approach preserves the original internet file name
+    # Print an indicator:
+    echo "Obtaining $FASTQ_R1"
 
-# Move the file to its destination directory
-mv $FASTQ_R1 $FASTQ_DEST
+    # Curl the file (using one of several approaches)
+    curl -O $FASTQ_URL/$FASTQ_R1 # this approach preserves the original internet file name
+
+    # Move the file to its destination directory
+    mv $FASTQ_R1 $FASTQ_DEST
+
+fi
 
 # Explore: how many lines are in the file?
 echo "The number of lines in $FASTQ_R1 is:"
@@ -35,20 +43,33 @@ gunzip -c $FASTQ_DEST/$FASTQ_R1 | wc -l
 
 ##### Process the R2 file #####
 
-# Print an indicator:
-echo "Obtaining $FASTQ_R2"
+# If the file doesn't exist, then we need to download it
+if [ ! -e "$FASTQ_DEST/$FASTQ_R2" ]; then
 
-# Curl the file (using one of several approaches)
-curl -O $FASTQ_URL/$FASTQ_R2 # this approach preserves the original internet file name
+    # Print an indicator:
+    echo "Obtaining $FASTQ_R2"
 
-# Move the file to its destination directory
-mv $FASTQ_R2 $FASTQ_DEST
+    # Curl the file (using one of several approaches)
+    curl -O $FASTQ_URL/$FASTQ_R2 # this approach preserves the original internet file name
+
+    # Move the file to its destination directory
+    mv $FASTQ_R2 $FASTQ_DEST
+
+fi
 
 # Explore: how many lines are in the file?
 echo "The number of lines in $FASTQ_R2 is:"
 gunzip -c $FASTQ_DEST/$FASTQ_R2 | wc -l
 
 
+## Trim the files with fastp
+fastp \
+  --in1 $FASTQ_DEST/$FASTQ_R1 \
+  --in2 $FASTQ_DEST/$FASTQ_R2 \
+  --out1 $TRIMMED_DIR/$FASTQ_R1 \
+  --out2 $TRIMMED_DIR/$FASTQ_R2 \
+  --html "$REPORTS_DIR/${STUDY_ID}_report.html" \
+  --json "$REPORTS_DIR/${STUDY_ID}_report.json"
 
 
 
